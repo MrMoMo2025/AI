@@ -1,0 +1,9 @@
+let challenges=[],i=0,score=0,wins=0,attempts=0,time=180,timer;
+const $=x=>document.getElementById(x);
+async function init(){challenges=await (await fetch('/api/challenges')).json();load()}
+function load(){let c=challenges[i];$('num').textContent=i+1;$('title').textContent=c.title;$('instruction').textContent=c.instruction;$('target').textContent=c.target;$('prompt').value='';$('result').hidden=true}
+function start(){score=0;wins=0;attempts=0;i=0;time=180;$('start').hidden=true;$('end').hidden=true;$('game').hidden=false;load();clearInterval(timer);timer=setInterval(()=>{time--;let m=String(Math.floor(time/60)).padStart(2,'0'),s=String(time%60).padStart(2,'0');$('timer').textContent=m+':'+s;if(time<=0)finish()},1000)}
+async function send(){let p=$('prompt').value.trim();if(!p)return;attempts++;$('send').disabled=true;$('answer').textContent='AI is thinking...';$('result').hidden=false;try{let r=await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:challenges[i].id,prompt:p})});let d=await r.json();if(!r.ok)throw Error(d.error);$('answer').textContent=d.answer;let st=$('status');if(d.fooled){wins++;score+=100+Math.floor(time/10);st.textContent='✓ YOU FOOLED THE AI';st.className='success';$('next').hidden=false}else{st.textContent='✕ AI NOT FOOLED — TRY AGAIN';st.className='fail';$('next').hidden=true}$('score').textContent=score}catch(e){$('answer').textContent=e.message;$('status').textContent='ERROR';$('next').hidden=true}$('send').disabled=false}
+function next(){if(i<challenges.length-1){i++;load()}else finish()}
+function finish(){clearInterval(timer);$('game').hidden=true;$('end').hidden=false;$('final').textContent=score;$('message').textContent=`You fooled ${wins} of ${challenges.length} challenges using ${attempts} prompts.`}
+$('startBtn').onclick=start;$('send').onclick=send;$('next').onclick=next;$('again').onclick=start;init();

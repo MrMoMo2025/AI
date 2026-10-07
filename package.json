@@ -1,14 +1,13 @@
 {
+  "name": "can-you-outsmart-ai",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "latest",
-    "openai": "latest",
-    "dotenv": "latest"
-  },
-  "engines": {
-    "node": ">=24.0.0 <25.0.0"
+    "@google/genai": "^1.0.0",
+    "express": "^4.21.2",
+    "dotenv": "^16.4.7"
   }
 }
